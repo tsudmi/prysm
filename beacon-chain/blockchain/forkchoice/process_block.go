@@ -135,13 +135,31 @@ func (s *Store) OnBlock(ctx context.Context, signed *ethpb.SignedBeaconBlock) er
 		reportEpochMetrics(postState)
 
 		// Update committees cache at epoch boundary slot.
-		if featureconfig.Get().EnableNewCache {
-			if err := helpers.UpdateCommitteeCache(postState, helpers.CurrentEpoch(postState)); err != nil {
-				return err
-			}
+		if err := helpers.UpdateCommitteeCache(postState, helpers.CurrentEpoch(postState)); err != nil {
+			return err
 		}
 
 		s.nextEpochBoundarySlot = helpers.StartSlot(helpers.NextEpoch(postState))
+	}
+
+	return nil
+}
+
+// OnBlockCacheFilteredTree calls OnBlock with additional of caching of filtered block tree
+// for efficient fork choice processing.
+func (s *Store) OnBlockCacheFilteredTree(ctx context.Context, signed *ethpb.SignedBeaconBlock) error {
+	if err := s.OnBlock(ctx, signed); err != nil {
+		return err
+	}
+
+	if featureconfig.Get().EnableBlockTreeCache {
+		tree, err := s.getFilterBlockTree(ctx)
+		if err != nil {
+			return errors.Wrap(err, "could not calculate filtered block tree")
+		}
+		s.filteredBlockTreeLock.Lock()
+		s.filteredBlockTree = tree
+		s.filteredBlockTreeLock.Unlock()
 	}
 
 	return nil
