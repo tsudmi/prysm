@@ -44,10 +44,10 @@ func (vs *Server) GetBlock(ctx context.Context, req *ethpb.BlockRequest) (*ethpb
 	}
 
 	// Pack ETH1 deposits which have not been included in the beacon chain.
-	deposits, err := vs.deposits(ctx, eth1Data)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Could not get ETH1 deposits: %v", err)
-	}
+	//deposits, err := vs.deposits(ctx, eth1Data)
+	//if err != nil {
+	//	return nil, status.Errorf(codes.Internal, "Could not get ETH1 deposits: %v", err)
+	//}
 
 	// Pack aggregated attestations which have not been included in the beacon chain.
 	atts := vs.AttPool.AggregatedAttestations()
@@ -67,7 +67,7 @@ func (vs *Server) GetBlock(ctx context.Context, req *ethpb.BlockRequest) (*ethpb
 		StateRoot:  stateRoot,
 		Body: &ethpb.BeaconBlockBody{
 			Eth1Data:     eth1Data,
-			Deposits:     deposits,
+			Deposits:     []*ethpb.Deposit{},
 			Attestations: atts,
 			RandaoReveal: req.RandaoReveal,
 			// TODO(2766): Implement rest of the retrievals for beacon block operations
