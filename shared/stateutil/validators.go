@@ -118,11 +118,11 @@ func (h *stateRootHasher) validatorRoot(validator *ethpb.Validator) ([32]byte, e
 		copy(enc[113:121], exitBuf)
 
 		// Check if it exists in cache:
-		if h.rootsCache != nil {
-			if found, ok := h.rootsCache.Get(string(enc)); found != nil && ok {
-				return found.([32]byte), nil
-			}
-		}
+		//if h.rootsCache != nil {
+		//	if found, ok := h.rootsCache.Get(string(enc)); found != nil && ok {
+		//		return found.([32]byte), nil
+		//	}
+		//}
 
 		// Public key.
 		pubKeyChunks, err := pack([][]byte{validator.PublicKey})
@@ -173,8 +173,8 @@ func (h *stateRootHasher) validatorRoot(validator *ethpb.Validator) ([32]byte, e
 	if err != nil {
 		return [32]byte{}, err
 	}
-	if h.rootsCache != nil {
-		h.rootsCache.Set(string(enc), valRoot, 32)
-	}
+	//if h.rootsCache != nil {
+	//	h.rootsCache.Set(string(enc), valRoot, 32)
+	//}
 	return valRoot, nil
 }
